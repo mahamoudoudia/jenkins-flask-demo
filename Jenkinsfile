@@ -1,35 +1,37 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials-id')
+        IMAGE_NAME = 'mahamoudoudia/flask-ci-demo'
+    }
+
     stages {
-        stage('Cloner') {
+        stage('Cloner le dépôt') {
             steps {
                 git 'https://github.com/mahamoudoudia/jenkins-flask-demo.git'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Construire l\'image Docker') {
             steps {
                 script {
-                    docker.build('flask-ci-demo')
+                    docker.build("${IMAGE_NAME}")
                 }
             }
         }
 
         stage('Tests') {
             steps {
-                sh 'echo "Tests fictifs pour le moment"'
+                sh 'echo "Exécution des tests (à implémenter)"'
             }
         }
 
-        stage('Push Docker Image') {
-            environment {
-                DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials-id')
-            }
+        stage('Pousser l\'image sur Docker Hub') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
-                        docker.image('flask-ci-demo').push('latest')
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials-id') {
+                        docker.image("${IMAGE_NAME}").push('latest')
                     }
                 }
             }
