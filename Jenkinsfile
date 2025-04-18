@@ -6,15 +6,6 @@ pipeline {
     }
 
     stages {
-        stage('Initialize') {
-            steps {
-                script {
-                    def dockerHome = tool 'myDocker'
-                    env.PATH = "${dockerHome}/bin:${env.PATH}"
-                }
-            }
-        }
-
         stage('Cloner le dépôt') {
             steps {
                 git url: 'https://github.com/mahamoudoudia/jenkins-flask-demo.git', branch: 'main'
