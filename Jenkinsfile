@@ -3,36 +3,44 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials-id')
-        IMAGE_NAME = 'mahamoudoudia/flask-ci-demo'
     }
 
     stages {
+        stage('Initialize') {
+            steps {
+                script {
+                    def dockerHome = tool 'myDocker'
+                    env.PATH = "${dockerHome}/bin:${env.PATH}"
+                }
+            }
+        }
+
         stage('Cloner le dépôt') {
             steps {
-                git branch: 'main', url: 'https://github.com/mahamoudoudia/jenkins-flask-demo.git'
+                git url: 'https://github.com/mahamoudoudia/jenkins-flask-demo.git', branch: 'main'
             }
         }
 
         stage('Construire l\'image Docker') {
             steps {
-                script {
-                    def app = docker.build("${IMAGE_NAME}")
-                }
+                sh 'docker build -t mahamoudoudia/flask-ci-demo .'
             }
         }
 
         stage('Tests') {
             steps {
-                sh 'echo "Exécution des tests (à implémenter)"'
+                echo 'Tests en cours...'
+                // Ajoute ici les tests si nécessaire
             }
         }
 
         stage('Pousser l\'image sur Docker Hub') {
             steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials-id') {
-                        docker.image("${IMAGE_NAME}").push('latest')
-                    }
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials-id', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh """
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push mahamoudoudia/flask-ci-demo
+                    """
                 }
             }
         }
