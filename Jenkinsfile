@@ -1,3 +1,5 @@
+@Library('docker') _
+
 pipeline {
     agent any
 
@@ -16,7 +18,7 @@ pipeline {
         stage('Construire l\'image Docker') {
             steps {
                 script {
-                    docker.build("${IMAGE_NAME}")
+                    def app = docker.build("${IMAGE_NAME}")
                 }
             }
         }
