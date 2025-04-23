@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'mahamoudoudia/flask-ci-demo'
-        DOCKER_HOST = 'tcp://<docker_host>:2375'  // Remplace <docker_host> par l'adresse de ton hôte Docker
+        DOCKER_HOST = 'tcp://92.222.217.60:2375'
     }
 
     stages {
@@ -22,7 +22,6 @@ pipeline {
         stage('Tests') {
             steps {
                 echo 'Tests en cours...'
-                // Ajoute ici les commandes de test si besoin
             }
         }
 
@@ -40,12 +39,11 @@ pipeline {
         stage('Déployer sur Docker') {
             steps {
                 script {
-                    // Déploiement sur Docker (exemple avec Docker Compose ou docker run)
                     sh '''
-                        docker pull $IMAGE_NAME
-                        docker stop flask-ci-demo || true
-                        docker rm flask-ci-demo || true
-                        docker run -d --name flask-ci-demo -p 5000:5000 $IMAGE_NAME
+                        docker -H $DOCKER_HOST pull $IMAGE_NAME
+                        docker -H $DOCKER_HOST stop flask-ci-demo || true
+                        docker -H $DOCKER_HOST rm flask-ci-demo || true
+                        docker -H $DOCKER_HOST run -d --name flask-ci-demo -p 5000:5000 $IMAGE_NAME
                     '''
                 }
             }
